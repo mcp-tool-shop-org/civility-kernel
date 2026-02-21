@@ -7,6 +7,14 @@ describe("DecisionEngine", () => {
   it("filters out plans that violate constraints", () => {
     const c = new ConstraintRegistry();
     registerDefaultConstraints(c);
+    c.register("confirm_spend_money", {
+      evaluate: (spec, plan) => {
+        if ((plan.meta.tags ?? []).includes("spend_money")) {
+          return { ok: false, id: spec.id, reason: "Requires confirmation to spend money" };
+        }
+        return { ok: true, id: spec.id };
+      }
+    });
     const s = new ScorerRegistry();
     registerDefaultScorers(s);
     const engine = new DecisionEngine(c, s);
@@ -32,7 +40,7 @@ describe("DecisionEngine", () => {
     expect(chosen?.id).toBe("ask");
     const buyEval = trace.candidates.find(c => c.plan.id === "buy")!.eval;
     expect(buyEval.passesConstraints).toBe(false);
-    expect(buyEval.violatedConstraints).toContain("confirm_spend_money");
+    expect(buyEval.violatedConstraints.map(c => typeof c === "string" ? c : c.id)).toContain("confirm_spend_money");
   });
 
   it("asks user when uncertainty exceeds threshold", () => {
@@ -86,6 +94,6 @@ describe("DecisionEngine", () => {
     const { trace } = engine.decide(policy, "x", plans);
 
     expect(trace.outcome).toBe("NO_VALID_PLAN");
-    expect(trace.candidates[0].eval.violatedConstraints).toContain("does_not_exist");
+    expect(trace.candidates[0].eval.violatedConstraints.map(c => typeof c === "string" ? c : c.id)).toContain("does_not_exist");
   });
 });

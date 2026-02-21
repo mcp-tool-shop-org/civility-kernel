@@ -1,6 +1,13 @@
 {
   "name": "civility-kernel",
   "version": "0.1.0",
+  "description": "A modular policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.",
+  "author": "mcp-tool-shop <64996768+mcp-tool-shop@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcp-tool-shop-org/civility-kernel.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,7 +27,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "prepack": "npm run clean && npm run build"
     ,
     "guard:no-root-policy": "node -e \"const fs=require('fs'); if (fs.existsSync('policy')) { console.error('Root policy/ directory detected. Remove it.'); process.exit(1);} \""
