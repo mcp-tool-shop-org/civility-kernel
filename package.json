@@ -1,5 +1,5 @@
 {
-  "name": "civility-kernel",
+  "name": "@mcptoolshop/civility-kernel",
   "version": "0.1.0",
   "description": "A modular policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.",
   "author": "mcp-tool-shop <64996768+mcp-tool-shop@users.noreply.github.com>",
@@ -18,7 +18,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "scripts": {
     "example:basic": "tsx examples/basic.ts",

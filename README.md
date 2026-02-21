@@ -1,135 +1,111 @@
+<div align="center">
+  <img src="assets/logo.png" alt="civility-kernel logo" width="200" />
+</div>
+
 # civility-kernel
 
-A modular policy layer that makes agent behavior *preference-governed* instead of purely efficiency-maximizing.
+A policy layer that makes agent behavior **preference-governed** instead of purely efficiency-maximizing.
 
-**Core idea:** generate candidate plans → **filter** with hard constraints → **score** with user weights → choose, or ask the user when uncertainty is high.
+It does four things, reliably:
 
-## What it includes
+1) **Lint** policies (catch broken or unsafe configs before they ship)  
+2) **Canonicalize** policies (equivalent inputs become the same output)  
+3) **Diff + approve** changes (human-readable, explicit consent)  
+4) **Rollback** automatically (save the previous policy before overwriting)
 
-- **Types**: `PreferencePolicy`, `Plan`, `PlanEval`, `DecisionTrace`
-- **Constraints** (hard gates): fail-closed, pluggable registry
-- **Context compilation**: per-context effective policy with rule-based adjustments
-- **Scoring** (soft prefs): pluggable dimension scorers
-- **Decision engine**: filter → score → choose, with ASK fallback
-- **Learning loop**: proposes policy updates, requires explicit confirmation
-- **Feature extraction**: (optional) derive tags/risk/reversibility/stake from plan steps
+This is the boring safety machinery that lets you build “agents with boundaries.”
 
-## Installation
+---
+
+## Core idea
+
+Your agent generates candidate plans. civility-kernel decides what happens next:
+
+**generate → filter (hard constraints) → score (weights) → choose OR ask**
+
+Hard constraints are non-negotiable. Soft preferences guide tradeoffs. Uncertainty can force “ask the human.”
+
+---
+
+## Install
 
 ```bash
-npm i civility-kernel
-# or
-pnpm add civility-kernel
+npm i @mcptoolshop/civility-kernel
 ```
 
-## Quickstart
+## The human governance loop
 
-```ts
-import {
-  DecisionEngine,
-  ConstraintRegistry,
-  ScorerRegistry,
-  registerDefaultConstraints,
-  registerDefaultScorers
-} from "civility-kernel";
+You can always see what your policy does.
+The agent must show changes before they apply.
+You can roll back.
+Nothing silently updates.
 
-const constraints = new ConstraintRegistry();
-registerDefaultConstraints(constraints);
-
-const scorers = new ScorerRegistry();
-registerDefaultScorers(scorers);
-
-const engine = new DecisionEngine(constraints, scorers);
-
-const policy = {
-  version: "1.0",
-  weights: { efficiency: 0.6, low_risk: 0.4 },
-  constraints: ["no_irreversible_changes", "confirm_spend_money"],
-  contextRules: [],
-  uncertaintyThreshold: 0.65,
-  memory: {},
-  calibration: { riskTolerance: 0.3, verbosity: 0.4, initiative: 0.5 }
-};
-
-const plans = [
-  {
-    id: "p1",
-    summary: "Book the cheapest flight now",
-    steps: [{ kind: "purchase", detail: "Buy flight ticket" }],
-    meta: { tags: ["spend_money"], uncertainty: 0.4, stake: 0.6, reversibility: 0 }
-  },
-  {
-    id: "p2",
-    summary: "Ask for preferred airline + budget, then book",
-    steps: [{ kind: "ask_user", detail: "Airline preference and max budget?" }],
-    meta: { uncertainty: 0.2, stake: 0.6, reversibility: 1 }
-  }
-];
-
-const { chosen, trace } = engine.decide(policy as any, "life-admin", plans as any);
-
-console.log("Outcome:", trace.outcome);
-console.log("Chosen:", chosen?.id);
-console.log("Why:", trace.rationale);
-```
-
-## DecisionTrace (“Why did you do that?”)
-
-Every decision returns a DecisionTrace containing:
-
-- effective policy (weights, constraints, thresholds)
-- evaluations for each candidate plan (violations + scores)
-- chosen plan (or ASK_USER / NO_VALID_PLAN)
-- rationale strings safe to show to end users
-
-## Policy Contract
-
-The policy is the contract between the user and the agent. To ensure this contract is safe and understandable, `civility-kernel` provides linting and diffing utilities.
-
-### Linting
-
-Use `lintPolicy(policy, { registry, scorers })` to validate a policy before saving or running it.
-
-- **Errors** (`severity: "error"`): The policy is broken and unsafe to run. Examples: unknown constraints (which fail closed), invalid constraint parameters (caught by Zod schemas), or thresholds outside `[0, 1]`.
-- **Warnings** (`severity: "warn"`): The policy is valid but might behave unexpectedly. Examples: missing scorers for a weight, negative weights, or duplicate constraints.
-
-### Diffing
-
-Never ask a user to approve a raw JSON policy update. Use `diffPolicy(canonicalOld, canonicalNew, registry)` to generate a human-readable list of changes.
-
-- Diffs are deterministic and UI-friendly.
-- Constraints can optionally export a `describe(params)` function to produce readable diff messages like `"Max spend without confirmation: 200 USD"` instead of raw JSON.
-- Always `canonicalizePolicy()` before diffing to fill in default parameters and sort keys, which prevents noisy diffs caused by formatting or implicit defaults.
-
-### Preview and approvals
-
-You can always see what your policy does. The agent must show you changes before they apply. You can roll back. Nothing silently updates.
-
-Preview what a policy does:
-
+Preview the policy contract:
 ```bash
 npm run policy:explain
 ```
 
-Propose an update (shows a human-readable diff and asks for approval):
-
+Propose an update (shows diff, prompts for approval):
 ```bash
 npm run policy:propose
 ```
 
 Canonicalize the current policy file (format-only normalization):
-
 ```bash
 npm run policy:canonicalize
 ```
 
-## Design principles
+### Automatic rollback safety
 
-- Constraints are non-negotiable: applied before scoring
-- Unknown constraints fail closed: safer default
-- Uncertainty triggers asking: avoids “efficiently wrong”
-- Policy updates are opt-in: propose changes, never silently mutate
+When applying changes, `policy-check` can back up the old policy first:
+
+```bash
+npx tsx scripts/policy-check.ts policies/default.json --propose policies/proposed.json --write-prev policies/previous.json
+```
+
+## Policy files
+
+Recommended convention:
+
+- `policies/default.json` — active policy
+- `policies/previous.json` — automatic rollback target
+- `policies/profiles/*.json` — named profiles (work / low-friction / safe-mode)
+
+## CLI options (policy-check)
+
+- `--explain` — print a human-readable policy summary
+- `--propose <file>` — lint + show canonicalized diff + prompt approval
+- `--apply` — rewrite the policy file in canonical form
+- `--write-prev <file>` — back up the old canonical policy before overwriting
+- `--diff short|full` — short shows “headline” changes; full shows everything
+- `--prev <file>` — deterministic CI diff mode
+
+## Public API
+
+- `lintPolicy(policy, { registry, scorers })`
+- `canonicalizePolicy(policy, registry, scorers?)`
+- `diffPolicy(a, b, { mode })` (short vs full)
+- `explainPolicy(policy, registry, { format })`
+
+## CI
+
+CI runs:
+- examples
+- tests
+- build
+- `policy-check` against fixtures (`policies/default.json` vs `policies/previous.json`)
+
+This prevents shipping broken policies or misleading diffs.
+
+## Development
+
+```bash
+npm test
+npm run build
+npm run example:basic
+npm run policy:check
+```
 
 ## License
 
-MIT
+MIT (see LICENSE)
