@@ -106,7 +106,7 @@ export function registerDefaultConstraints(reg: ConstraintRegistry) {
   reg.register("require_confirm_if", {
     schema: z.object({
       stakeGte: z.number().min(0).max(1),
-      irreversible: z.boolean().optional()
+      irreversible: z.boolean().default(false)
     }),
     describe: (params) => {
       const p = params as any;

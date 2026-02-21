@@ -18,7 +18,8 @@ function canonicalizeSpec(spec: ConstraintSpec, registry: ConstraintRegistry): C
     const parsed = handler.schema.safeParse(params);
     if (parsed.success) {
       // Use parsed data to fill in defaults
-      return Object.keys(parsed.data).length > 0 ? { id, params: parsed.data } : id;
+      const data = parsed.data as Record<string, unknown>;
+      return Object.keys(data).length > 0 ? { id, params: data } : id;
     }
   }
   

@@ -24,10 +24,12 @@ type Args = {
   apply?: boolean;
   format?: "text" | "markdown";
   strict?: boolean; // treat warnings as errors
+  writePrev?: string;
+  diffMode?: "short" | "full";
 };
 
 function parseArgs(argv: string[]): Args {
-  const out: Args = { format: "text", strict: false };
+  const out: Args = { format: "text", strict: false, diffMode: "full" };
   const pos: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
@@ -38,6 +40,11 @@ function parseArgs(argv: string[]): Args {
     else if (a === "--propose") out.proposePath = argv[++i];
     else if (a === "--explain") out.explain = true;
     else if (a === "--apply") out.apply = true;
+    else if (a === "--write-prev") out.writePrev = argv[++i];
+    else if (a === "--diff") {
+      const v = argv[++i];
+      out.diffMode = v === "short" ? "short" : "full";
+    }
     else if (a === "--format") {
       const v = (argv[++i] ?? "text") as any;
       out.format = v === "markdown" ? "markdown" : "text";
@@ -98,6 +105,34 @@ function fallbackExplain(policy: PreferencePolicy) {
   return lines.join("\n");
 }
 
+function printDiff(d: ReturnType<typeof diffPolicy>, mode: "short" | "full") {
+  if (!d.changed) {
+    console.log("No changes.");
+    return;
+  }
+  
+  let items = d.items;
+  if (mode === "short") {
+    items = items.filter(i => 
+      i.kind.startsWith("constraint_") || 
+      i.kind.startsWith("threshold_") ||
+      i.kind.startsWith("context_rule_")
+    );
+    if (items.length === 0 && d.items.length > 0) {
+      console.log(`(Changes hidden in short mode. ${d.items.length} total changes.)`);
+      return;
+    }
+  }
+
+  for (const item of items) {
+    console.log(`- ${item.message}`);
+  }
+  
+  if (mode === "short" && items.length < d.items.length) {
+    console.log(`... and ${d.items.length - items.length} other changes (weights/calibration).`);
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   ensureFile(args.policyPath, "policy");
@@ -156,8 +191,7 @@ async function main() {
 
     const d = diffPolicy(prev, policy, registry);
     console.log("\nDiff vs prev:");
-    if (!d.changed) console.log("No changes.");
-    else for (const item of d.items) console.log(`- ${item.message}`);
+    printDiff(d, args.diffMode ?? "full");
   }
 
   // Human mode: --propose <new.json>
@@ -181,8 +215,7 @@ async function main() {
 
     const d = diffPolicy(policy, proposed, registry);
     console.log("\nProposed changes:");
-    if (!d.changed) console.log("No changes.");
-    else for (const item of d.items) console.log(`- ${item.message}`);
+    printDiff(d, args.diffMode ?? "full");
 
     // Default behavior: ask to apply (unless --apply present)
     const shouldApply = args.apply ? true : await askYesNo("\nApply these changes? (y/N) ");
@@ -191,10 +224,19 @@ async function main() {
       return;
     }
 
+    if (args.writePrev) {
+      writeJson(args.writePrev, policy);
+      console.log(`Backed up current policy to ${args.writePrev}`);
+    }
+
     // Write canonicalized proposed policy to the target policyPath
     writeJson(policyPath, proposed);
     console.log(`Applied. Wrote canonicalized policy to ${policyPath}`);
   } else if (args.apply) {
+    if (args.writePrev) {
+      writeJson(args.writePrev, policy);
+      console.log(`Backed up current policy to ${args.writePrev}`);
+    }
     // If user called --apply without --propose, interpret as: "rewrite policy file in canonical form"
     writeJson(policyPath, policy);
     console.log(`Applied canonicalization. Wrote canonicalized policy to ${policyPath}`);
