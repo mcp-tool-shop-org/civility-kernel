@@ -9,6 +9,10 @@ export class ScorerRegistry {
     this.scorers.set(key, fn);
   }
 
+  has(key: WeightKey): boolean {
+    return this.scorers.has(key);
+  }
+
   score(plan: Plan, policy: PreferencePolicy): Record<WeightKey, number> {
     const out: Record<string, number> = {};
     for (const [k] of Object.entries(policy.weights)) {
