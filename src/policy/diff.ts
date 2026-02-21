@@ -1,4 +1,5 @@
 import type { PreferencePolicy, ConstraintSpec } from "./types.js";
+import type { ConstraintRegistry } from "./constraints.js";
 
 export interface PolicyDiffItem {
   kind:
@@ -34,7 +35,17 @@ function byKey<T>(arr: T[], keyFn: (t: T) => string): Map<string, T> {
   return m;
 }
 
-export function diffPolicy(a: PreferencePolicy, b: PreferencePolicy): PolicyDiff {
+function describeSpec(spec: ConstraintSpec, registry?: ConstraintRegistry): string {
+  const id = typeof spec === "string" ? spec : spec.id;
+  const params = typeof spec === "string" ? undefined : spec.params;
+  const handler = registry?.getHandler(id);
+  if (handler?.describe) {
+    return handler.describe(params);
+  }
+  return specKey(spec);
+}
+
+export function diffPolicy(a: PreferencePolicy, b: PreferencePolicy, registry?: ConstraintRegistry): PolicyDiff {
   const items: PolicyDiffItem[] = [];
 
   // threshold
@@ -74,10 +85,18 @@ export function diffPolicy(a: PreferencePolicy, b: PreferencePolicy): PolicyDiff
   }
 
   // constraints (treat each spec instance as a set element keyed by id+params)
-  const aC = new Set(a.constraints.map(specKey));
-  const bC = new Set(b.constraints.map(specKey));
-  for (const x of bC) if (!aC.has(x)) items.push({ kind: "constraint_added", message: `Constraint added: ${x}`, path: "constraints" });
-  for (const x of aC) if (!bC.has(x)) items.push({ kind: "constraint_removed", message: `Constraint removed: ${x}`, path: "constraints" });
+  const aC = new Map(a.constraints.map(c => [specKey(c), c]));
+  const bC = new Map(b.constraints.map(c => [specKey(c), c]));
+  for (const [k, spec] of bC) {
+    if (!aC.has(k)) {
+      items.push({ kind: "constraint_added", message: `Constraint added: ${describeSpec(spec, registry)}`, path: "constraints" });
+    }
+  }
+  for (const [k, spec] of aC) {
+    if (!bC.has(k)) {
+      items.push({ kind: "constraint_removed", message: `Constraint removed: ${describeSpec(spec, registry)}`, path: "constraints" });
+    }
+  }
 
   // context rules (simple diff by index+context; later you can get fancy)
   const aR = byKey(a.contextRules, r => r.context);

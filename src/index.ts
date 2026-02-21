@@ -8,3 +8,4 @@ export * from "./policy/decision.js";
 export * from "./policy/learning.js";
 export * from "./policy/lint.js";
 export * from "./policy/diff.js";
+export * from "./policy/canonicalize.js";

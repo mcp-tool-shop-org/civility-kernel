@@ -11,6 +11,7 @@ export interface ConstraintResult {
 
 export type ConstraintHandler = {
   schema?: z.ZodTypeAny;
+  describe?: (params?: Record<string, unknown>) => string;
   evaluate: (
     spec: { id: ConstraintId; params?: Record<string, unknown> },
     plan: Plan,
@@ -68,6 +69,7 @@ export class ConstraintRegistry {
 
 export function registerDefaultConstraints(reg: ConstraintRegistry) {
   reg.register("no_irreversible_changes", {
+    describe: () => "No irreversible changes allowed",
     evaluate: (spec, plan) => {
       if (plan.meta.reversibility === 0) {
         return { ok: false, id: spec.id, params: spec.params, reason: "Plan includes irreversible action" };
@@ -81,6 +83,10 @@ export function registerDefaultConstraints(reg: ConstraintRegistry) {
       amount: z.number().nonnegative(),
       currency: z.string().optional()
     }),
+    describe: (params) => {
+      const p = params as any;
+      return `Max spend without confirmation: ${p?.amount ?? 0} ${p?.currency ?? ""}`.trim();
+    },
     evaluate: (spec, plan) => {
       const { amount } = spec.params as any;
       const spend = Number((plan.meta as any)?.estimatedCost ?? 0);
@@ -102,6 +108,12 @@ export function registerDefaultConstraints(reg: ConstraintRegistry) {
       stakeGte: z.number().min(0).max(1),
       irreversible: z.boolean().optional()
     }),
+    describe: (params) => {
+      const p = params as any;
+      const parts = [`stake >= ${p?.stakeGte ?? 0}`];
+      if (p?.irreversible) parts.push("is irreversible");
+      return `Require confirmation if ${parts.join(" and ")}`;
+    },
     evaluate: (spec, plan) => {
       const { stakeGte, irreversible = false } = spec.params as any;
       const stake = plan.meta.stake ?? 0;

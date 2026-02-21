@@ -82,6 +82,25 @@ Every decision returns a DecisionTrace containing:
 - chosen plan (or ASK_USER / NO_VALID_PLAN)
 - rationale strings safe to show to end users
 
+## Policy Contract
+
+The policy is the contract between the user and the agent. To ensure this contract is safe and understandable, `civility-kernel` provides linting and diffing utilities.
+
+### Linting
+
+Use `lintPolicy(policy, { registry, scorers })` to validate a policy before saving or running it.
+
+- **Errors** (`severity: "error"`): The policy is broken and unsafe to run. Examples: unknown constraints (which fail closed), invalid constraint parameters (caught by Zod schemas), or thresholds outside `[0, 1]`.
+- **Warnings** (`severity: "warn"`): The policy is valid but might behave unexpectedly. Examples: missing scorers for a weight, negative weights, or duplicate constraints.
+
+### Diffing
+
+Never ask a user to approve a raw JSON policy update. Use `diffPolicy(canonicalOld, canonicalNew, registry)` to generate a human-readable list of changes.
+
+- Diffs are deterministic and UI-friendly.
+- Constraints can optionally export a `describe(params)` function to produce readable diff messages like `"Max spend without confirmation: 200 USD"` instead of raw JSON.
+- Always `canonicalizePolicy()` before diffing to fill in default parameters and sort keys, which prevents noisy diffs caused by formatting or implicit defaults.
+
 ## Design principles
 
 - Constraints are non-negotiable: applied before scoring

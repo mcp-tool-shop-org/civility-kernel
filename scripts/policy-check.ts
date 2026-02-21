@@ -1,18 +1,20 @@
 import fs from "fs";
 import { lintPolicy } from "../src/policy/lint.js";
 import { diffPolicy } from "../src/policy/diff.js";
+import { canonicalizePolicy } from "../src/policy/canonicalize.js";
 import { ConstraintRegistry, registerDefaultConstraints } from "../src/policy/constraints.js";
 import { ScorerRegistry, registerDefaultScorers } from "../src/policy/scoring.js";
 import { PreferencePolicy } from "../src/policy/types.js";
 
 const args = process.argv.slice(2);
 if (args.length < 1) {
-  console.error("Usage: tsx scripts/policy-check.ts <policy.json> [old_policy.json]");
+  console.error("Usage: tsx scripts/policy-check.ts <policy.json> [--prev <old_policy.json>]");
   process.exit(1);
 }
 
 const policyPath = args[0];
-const oldPolicyPath = args[1];
+const prevIndex = args.indexOf("--prev");
+const oldPolicyPath = prevIndex !== -1 ? args[prevIndex + 1] : undefined;
 
 const policy: PreferencePolicy = JSON.parse(fs.readFileSync(policyPath, "utf-8"));
 
@@ -37,7 +39,11 @@ if (report.issues.length > 0) {
 if (oldPolicyPath) {
   console.log(`\nDiffing against ${oldPolicyPath}...`);
   const oldPolicy: PreferencePolicy = JSON.parse(fs.readFileSync(oldPolicyPath, "utf-8"));
-  const diff = diffPolicy(oldPolicy, policy);
+  
+  const canonicalOld = canonicalizePolicy(oldPolicy, registry);
+  const canonicalNew = canonicalizePolicy(policy, registry);
+  
+  const diff = diffPolicy(canonicalOld, canonicalNew, registry);
   
   if (diff.changed) {
     console.log("Changes:");
