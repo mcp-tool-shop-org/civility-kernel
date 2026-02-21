@@ -27,6 +27,10 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "policy:check": "tsx scripts/policy-check.ts policies/default.json --strict",
+    "policy:explain": "tsx scripts/policy-check.ts policies/default.json --explain --format markdown",
+    "policy:propose": "tsx scripts/policy-check.ts policies/default.json --propose policies/proposed.json",
+    "policy:canonicalize": "tsx scripts/policy-check.ts policies/default.json --apply",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "prepack": "npm run clean && npm run build"
     ,

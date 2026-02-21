@@ -101,6 +101,28 @@ Never ask a user to approve a raw JSON policy update. Use `diffPolicy(canonicalO
 - Constraints can optionally export a `describe(params)` function to produce readable diff messages like `"Max spend without confirmation: 200 USD"` instead of raw JSON.
 - Always `canonicalizePolicy()` before diffing to fill in default parameters and sort keys, which prevents noisy diffs caused by formatting or implicit defaults.
 
+### Preview and approvals
+
+You can always see what your policy does. The agent must show you changes before they apply. You can roll back. Nothing silently updates.
+
+Preview what a policy does:
+
+```bash
+npm run policy:explain
+```
+
+Propose an update (shows a human-readable diff and asks for approval):
+
+```bash
+npm run policy:propose
+```
+
+Canonicalize the current policy file (format-only normalization):
+
+```bash
+npm run policy:canonicalize
+```
+
 ## Design principles
 
 - Constraints are non-negotiable: applied before scoring
