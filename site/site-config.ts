@@ -3,7 +3,7 @@ import type { SiteConfig } from '@mcptoolshop/site-theme';
 export const config: SiteConfig = {
   title: 'civility-kernel',
   description: 'A policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.',
-  logoBadge: '@mcptoolshop/civility-kernel',
+  logoBadge: '🛡',
   brandName: 'civility-kernel',
   repoUrl: 'https://github.com/mcp-tool-shop-org/civility-kernel',
   npmUrl: 'https://www.npmjs.com/package/@mcptoolshop/civility-kernel',
