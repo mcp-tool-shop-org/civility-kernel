@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/civility-kernel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A modular policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.",
   "author": "mcp-tool-shop <64996768+mcp-tool-shop@users.noreply.github.com>",
   "license": "MIT",
@@ -17,9 +17,23 @@
       "default": "./dist/index.js"
     }
   },
+  "homepage": "https://github.com/mcp-tool-shop-org/civility-kernel#readme",
+  "keywords": [
+    "agent",
+    "mcp",
+    "policy",
+    "governance",
+    "ai-safety",
+    "constraints",
+    "preferences",
+    "decision",
+    "civility"
+  ],
   "files": [
     "dist",
-    "assets"
+    "assets",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "example:basic": "tsx examples/basic.ts",
@@ -33,8 +47,7 @@
     "policy:propose": "tsx scripts/policy-check.ts policies/default.json --propose policies/proposed.json",
     "policy:canonicalize": "tsx scripts/policy-check.ts policies/default.json --apply",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
-    "prepack": "npm run clean && npm run build"
-    ,
+    "prepack": "npm run clean && npm run build",
     "guard:no-root-policy": "node -e \"const fs=require('fs'); if (fs.existsSync('policy')) { console.error('Root policy/ directory detected. Remove it.'); process.exit(1);} \""
   },
   "devDependencies": {
