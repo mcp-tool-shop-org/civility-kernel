@@ -108,20 +108,20 @@ npm run policy:canonicalize`,
       subtitle: 'Four focused functions. No magic.',
       apis: [
         {
-          name: 'lintPolicy(policy, { registry, scorers? })',
-          desc: 'Validate a policy against registered constraints. Returns errors with field-level context. Fail-closed on unknown constraint types.',
+          signature: 'lintPolicy(policy, { registry, scorers? })',
+          description: 'Validate a policy against registered constraints. Returns errors with field-level context. Fail-closed on unknown constraint types.',
         },
         {
-          name: 'canonicalizePolicy(policy, registry, scorers?)',
-          desc: 'Normalize a policy to its canonical form — fills defaults, sorts keys deterministically. Idempotent.',
+          signature: 'canonicalizePolicy(policy, registry, scorers?)',
+          description: 'Normalize a policy to its canonical form — fills defaults, sorts keys deterministically. Idempotent.',
         },
         {
-          name: 'diffPolicy(a, b, { mode })',
-          desc: 'Compare two canonical policies. mode: "short" shows headline changes; mode: "full" shows every field.',
+          signature: 'diffPolicy(a, b, { mode })',
+          description: 'Compare two canonical policies. mode: "short" shows headline changes; mode: "full" shows every field.',
         },
         {
-          name: 'explainPolicy(policy, registry, { format })',
-          desc: 'Render a human-readable description of what a policy does and why. format: "text" | "markdown".',
+          signature: 'explainPolicy(policy, registry, { format })',
+          description: 'Render a human-readable description of what a policy does and why. format: "text" | "markdown".',
         },
       ],
     },
