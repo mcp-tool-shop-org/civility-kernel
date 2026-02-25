@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1
+## 0.2.0
 - Fix broken logo image on npm (absolute raw.githubusercontent.com URL)
 - Add `keywords` and `homepage` to package.json for better npm discoverability
 - Explicit `README.md` and `LICENSE` entries in `files`
