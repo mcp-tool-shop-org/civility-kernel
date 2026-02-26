@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/civility-kernel",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A modular policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.",
   "author": "mcp-tool-shop <64996768+mcp-tool-shop@users.noreply.github.com>",
   "license": "MIT",
