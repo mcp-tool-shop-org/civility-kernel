@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/civility-kernel/main/assets/logo.png" alt="civility-kernel logo" width="360" />
+  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/civility-kernel/readme.png" alt="civility-kernel logo" width="360" />
 </div>
 
 # civility-kernel
