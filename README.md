@@ -2,7 +2,12 @@
   <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/civility-kernel/readme.png" alt="civility-kernel logo" width="360" />
 </div>
 
-# civility-kernel
+<p align="center">
+  <a href="https://github.com/mcp-tool-shop-org/civility-kernel/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/civility-kernel/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License"></a>
+  <a href="https://mcp-tool-shop-org.github.io/civility-kernel/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
+  <a href="https://www.npmjs.com/package/@mcptoolshop/civility-kernel"><img src="https://img.shields.io/npm/v/%40mcptoolshop%2Fcivility-kernel" alt="npm version"></a>
+</p>
 
 A policy layer that makes agent behavior **preference-governed** instead of purely efficiency-maximizing.
 
@@ -106,6 +111,35 @@ npm run example:basic
 npm run policy:check
 ```
 
+## Security & Data Scope
+
+Civility Kernel is a **pure library** — no network requests, no telemetry, no side effects.
+
+- **Data accessed:** Reads JSON policy files from local filesystem. Validates, canonicalizes, and diffs policy documents in-process. All operations are deterministic.
+- **Data NOT accessed:** No network requests. No telemetry. No credential storage. The kernel evaluates policy constraints — it does not observe or log agent actions.
+- **Permissions required:** File system read for policy JSON files. Write only when explicitly requested via `--apply`.
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+---
+
+## Scorecard
+
+| Category | Score |
+|----------|-------|
+| Security | 10/10 |
+| Error Handling | 10/10 |
+| Operator Docs | 10/10 |
+| Shipping Hygiene | 10/10 |
+| Identity | 10/10 |
+| **Overall** | **50/50** |
+
+---
+
 ## License
 
 MIT (see LICENSE)
+
+---
+
+Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

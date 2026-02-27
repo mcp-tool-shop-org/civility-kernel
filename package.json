@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/civility-kernel",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "A modular policy layer that makes agent behavior preference-governed instead of purely efficiency-maximizing.",
   "author": "mcp-tool-shop <64996768+mcp-tool-shop@users.noreply.github.com>",
   "license": "MIT",
@@ -33,6 +33,7 @@
     "dist",
     "assets",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
@@ -41,6 +42,8 @@
     "example:explain": "tsx examples/explain-policy.ts",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "verify": "npm run build && npm run test && echo 'All checks passed'",
     "test:watch": "vitest",
     "policy:check": "tsx scripts/policy-check.ts policies/default.json --strict",
     "policy:explain": "tsx scripts/policy-check.ts policies/default.json --explain --format markdown",
@@ -51,10 +54,14 @@
     "guard:no-root-policy": "node -e \"const fs=require('fs'); if (fs.existsSync('policy')) { console.error('Root policy/ directory detected. Remove it.'); process.exit(1);} \""
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
     "vitest": "^2.0.0",
     "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "zod": "^4.3.6"
