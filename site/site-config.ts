@@ -15,7 +15,7 @@ export const config: SiteConfig = {
     headlineAccent: 'boundaries.',
     description: 'A modular policy layer for agent behavior. Hard constraints filter. Soft preferences score. Uncertainty asks. Nothing changes silently.',
     primaryCta: { href: '#usage', label: 'Get started' },
-    secondaryCta: { href: '#features', label: 'See how it works' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       { label: 'Install', code: 'npm i @mcptoolshop/civility-kernel' },
       { label: 'Import', code: "import { lintPolicy, canonicalizePolicy, diffPolicy } from '@mcptoolshop/civility-kernel';" },
