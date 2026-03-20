@@ -35,11 +35,6 @@ export class ConstraintRegistry {
    * Returns the handler for a given constraint id, or undefined if not registered.
    */
   public getHandler(id: string): ConstraintHandler | undefined {
-    // Debug: print handler lookup if env var set
-    if (typeof process !== 'undefined' && typeof process.env !== 'undefined' && process.env.DEBUG_EXPLAIN) {
-      // eslint-disable-next-line no-console
-      console.log(`[getHandler] id: '${id}', keys:`, Array.from(this.handlers.keys()));
-    }
     return this.handlers.get(id);
   }
 

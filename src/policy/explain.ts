@@ -77,11 +77,6 @@ export function explainPolicy(
     const spec = typeof c === "string" ? { id: c, params: {} } : { id: c.id, params: c.params ?? {} };
 
     const handler = registry.getHandler?.(spec.id);
-    // Debug: print handler existence
-    if (typeof process !== 'undefined' && process.env && process.env.DEBUG_EXPLAIN) {
-      // eslint-disable-next-line no-console
-      console.log(`Constraint ${spec.id} handler:`, !!handler);
-    }
     if (!handler) {
       warnings.push(`Unknown constraint (will fail closed): ${fmt(c)}`);
       lines.push(bullet(`${fmt(c)} — ⚠ unknown (fails closed)`));

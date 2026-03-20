@@ -54,11 +54,12 @@
     "guard:no-root-policy": "node -e \"const fs=require('fs'); if (fs.existsSync('policy')) { console.error('Root policy/ directory detected. Remove it.'); process.exit(1);} \""
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^2.0.0",
+    "rollup": "^4.59.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^2.0.0",
-    "@types/node": "^20.0.0"
+    "vitest": "^2.0.0"
   },
   "engines": {
     "node": ">=18"

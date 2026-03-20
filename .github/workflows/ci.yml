@@ -36,3 +36,6 @@ jobs:
       - run: npm run build
       - run: npm run test
       - run: npx tsx scripts/policy-check.ts policies/default.json --prev policies/previous.json
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npx secretlint "src/**"
+        continue-on-error: true
