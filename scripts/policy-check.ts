@@ -49,7 +49,28 @@ function parseArgs(argv: string[]): Args {
       const v = (argv[++i] ?? "text") as any;
       out.format = v === "markdown" ? "markdown" : "text";
     } else if (a === "--strict") out.strict = true;
-    else if (a.startsWith("-")) {
+    else if (a === "--version" || a === "-V") {
+      const pkg = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname!, "..", "package.json"), "utf8"));
+      console.log(`policy-check ${pkg.version}`);
+      process.exit(0);
+    } else if (a === "--help" || a === "-h") {
+      const pkg = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname!, "..", "package.json"), "utf8"));
+      console.log(`policy-check ${pkg.version} — Civility Kernel policy validator\n`);
+      console.log("Usage:");
+      console.log("  policy-check <policy.json> [options]\n");
+      console.log("Options:");
+      console.log("  --strict              Treat warnings as errors");
+      console.log("  --explain             Show detailed constraint explanations");
+      console.log("  --format <text|md>    Output format (default: text)");
+      console.log("  --apply               Canonicalize policy in-place");
+      console.log("  --propose <path>      Write proposed canonicalized policy");
+      console.log("  --prev <path>         Compare against previous policy version");
+      console.log("  --diff <short|full>   Diff output mode (default: full)");
+      console.log("  --write-prev <path>   Save current policy as baseline");
+      console.log("  --version             Show version");
+      console.log("  --help                Show this help");
+      process.exit(0);
+    } else if (a.startsWith("-")) {
       throw new Error(`Unknown flag: ${a}`);
     } else {
       pos.push(a);
