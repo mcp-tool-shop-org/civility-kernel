@@ -46,3 +46,4 @@ Civility Kernel provides four operations, each designed to be deterministic and 
 | [Policy Files](/civility-kernel/handbook/policy-files/) | Policy file format, constraints, weights, context rules, and calibration |
 | [API Reference](/civility-kernel/handbook/api/) | Programmatic usage of all public functions and classes |
 | [CLI & Security Reference](/civility-kernel/handbook/reference/) | Complete CLI reference, exit codes, and security model |
+| [Beginners Guide](/civility-kernel/handbook/beginners/) | New to agent governance? Start here for concepts, walkthrough, and FAQ |

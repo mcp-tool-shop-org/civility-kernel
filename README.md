@@ -91,10 +91,29 @@ Recommended convention:
 
 ## Public API
 
-- `lintPolicy(policy, { registry, scorers })`
-- `canonicalizePolicy(policy, registry, scorers?)`
-- `diffPolicy(a, b, { mode })` (short vs full)
-- `explainPolicy(policy, registry, { format })`
+**Policy operations:**
+
+- `lintPolicy(policy, { registry, scorers })` — validate a policy for errors and warnings
+- `canonicalizePolicy(policy, registry)` — normalize a policy to canonical form
+- `diffPolicy(a, b, registry?)` — structured diff between two policies
+- `explainPolicy(policy, registry, opts?)` — human-readable policy summary
+
+**Decision engine:**
+
+- `DecisionEngine` — evaluates candidate plans against a policy (filter → score → choose or ask)
+- `compileEffectivePolicy(base, context, plans)` — applies context rules to produce the effective policy
+
+**Registries:**
+
+- `ConstraintRegistry` — register and evaluate hard constraints (with optional Zod parameter schemas)
+- `ScorerRegistry` — register scoring functions for weight keys
+- `registerDefaultConstraints(registry)` — loads built-in constraints (`no_irreversible_changes`, `max_spend_without_confirm`, `require_confirm_if`)
+- `registerDefaultScorers(registry)` — loads built-in scorers (`efficiency`, `low_risk`, `concise`)
+
+**Utilities:**
+
+- `extractTags(plan)` / `annotatePlanWithTags(plan)` — auto-tag plans based on step content
+- `proposePolicyUpdates(policy, events)` — suggest policy adjustments from user feedback events
 
 ## CI
 

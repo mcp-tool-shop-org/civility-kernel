@@ -27,6 +27,13 @@ import {
   // Context compilation
   compileEffectivePolicy,
 
+  // Feature extraction
+  extractTags,
+  annotatePlanWithTags,
+
+  // Feedback learning
+  proposePolicyUpdates,
+
   // Types
   type PreferencePolicy,
   type Plan,
@@ -40,7 +47,10 @@ import {
   type PolicyDiff,
   type PolicyDiffItem,
   type PolicyExplanation,
+  type ExplainOptions,
   type ScorerFn,
+  type FeedbackEvent,
+  type PolicyUpdateProposal,
 } from '@mcptoolshop/civility-kernel';
 ```
 
@@ -305,3 +315,55 @@ Context rules are evaluated in order. A rule applies when:
 2. All `when` conditions are satisfied (or `when` is omitted)
 
 Multiple matching rules are applied sequentially -- later rules can override earlier ones.
+
+---
+
+## extractTags / annotatePlanWithTags
+
+```typescript
+function extractTags(plan: Plan): string[]
+function annotatePlanWithTags(plan: Plan): Plan
+```
+
+Automatic tag extraction from plan step content. `extractTags` scans each step's `detail` field for keywords and returns matching tags. `annotatePlanWithTags` returns a new plan with `meta.tags` populated.
+
+**Detected tags:**
+
+| Tag | Trigger keywords |
+|-----|-----------------|
+| `spend_money` | spend, purchase, buy, pay |
+| `irreversible` | irreversible, cannot undo, permanent |
+| `contact_external` | email, message, contact |
+| `delete_file` | delete, remove, erase |
+
+Tags are used by constraints like `max_spend_without_confirm` which checks for the `spend_money` tag.
+
+---
+
+## proposePolicyUpdates
+
+```typescript
+function proposePolicyUpdates(
+  policy: PreferencePolicy,
+  events: FeedbackEvent[]
+): PolicyUpdateProposal[]
+```
+
+Analyzes user feedback events and proposes policy adjustments. This is the learning loop -- it turns patterns in user behavior into concrete policy patches that can be reviewed and approved through the normal governance workflow.
+
+**FeedbackEvent types:**
+
+| Type | Description |
+|------|-------------|
+| `CHOOSE_PLAN` | User selected a specific plan |
+| `UNDO` | User undid an agent action |
+| `THUMBS_UP` | Positive feedback on a decision |
+| `THUMBS_DOWN` | Negative feedback (optionally with `weightKey`) |
+
+**Proposal triggers:**
+
+- 3+ `UNDO` events: proposes reducing `initiative` by 0.1 (actions are too proactive)
+- 2+ `THUMBS_DOWN` with `weightKey: "concise"`: proposes reducing `verbosity` by 0.1
+- 5+ `THUMBS_DOWN` with no other proposals: suggests requesting user clarification
+
+Each `PolicyUpdateProposal` includes a `reason` string and a `patch` (partial policy) that can be merged after human review.
